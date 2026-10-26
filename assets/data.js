@@ -38,7 +38,7 @@ window.SITE = {
       src: "https://bauval.org/22/885f283e75c13ade7d91462fbeb6b628",
       width: 300,
       height: 250,
-      slots: ["top", "inline"]
+      slots: ["top"]
     }
   },
 

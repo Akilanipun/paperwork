@@ -96,6 +96,18 @@
         slot.appendChild(wrap);
         fit(wrap);
         added++;
+
+        /* No fill means no ad markup inside the frame. Remove it rather
+           than leave a blank 300x250 hole in the page. */
+        setTimeout(function () {
+          var doc = null;
+          try { doc = frame.contentDocument; } catch (e) { return; }
+          if (!doc || !doc.body) return;
+          if (!doc.querySelector("iframe, img, ins, object, embed")) {
+            wrap.remove();
+            slot.style.display = "none";
+          }
+        }, 5000);
       });
       if (!added) document.documentElement.classList.add("no-ads");
       window.addEventListener("resize", debounce(function () {
