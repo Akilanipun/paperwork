@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Block nothing important. Add disallow rules here if you publish thin pages.
+Sitemap: https://YOUR-DOMAIN.com/sitemap.xml

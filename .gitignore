@@ -1,0 +1,15 @@
+# OS and editor junk
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+
+# Editor folders
+.vscode/
+.idea/
+
+# If you ever add tooling, keep dependencies out
+node_modules/
+
+# Local test scripts
+*.test.local.*

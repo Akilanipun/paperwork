@@ -1,0 +1,4 @@
+# ads.txt
+# After AdSense approves the site, delete the # on the line below and replace
+# the publisher id with your own. It looks like pub-1234567890123456
+# google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
