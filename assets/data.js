@@ -19,19 +19,27 @@ window.SITE = {
   /* --------------------------------------------------------------------
      ADVERTISING
      --------------------------------------------------------------------
-     Nothing loads until the visitor presses "Accept" on the cookie
-     banner. To switch an ad off, set its value to "" (empty string).
+     One Adsterra 300x250 banner, loaded only after the visitor presses
+     "Accept" on the cookie banner.
 
-     popunder    - Adsterra popunder. Loads in <head>.
-     socialBar   - Adsterra social bar. Loads at the end of <body>.
+     key    - your Adsterra zone key
+     src    - the zone script Adsterra gave you
+     slots  - which <aside class="ad-slot"> boxes get a banner:
+              "top" (above the tool) and/or "inline" (near the bottom).
+              Remove one to show a single banner per page.
 
-     Keep the exact URLs. They contain your account and zone ids.
+     To switch ads off completely, set key and src to "".
      -------------------------------------------------------------------- */
   requireConsent: true,
 
   adsterra: {
-    popunder: "https://abscloud.org/1/bd4e8213ef627fcbeea668607559b75f",
-    socialBar: "https://bauval.org/14/2b3eaa7170df6583ef0df8d5a5a7e953"
+    banner: {
+      key: "885f283e75c13ade7d91462fbeb6b628",
+      src: "https://bauval.org/22/885f283e75c13ade7d91462fbeb6b628",
+      width: 300,
+      height: 250,
+      slots: ["top", "inline"]
+    }
   },
 
   /* Optional second network. Leave client empty unless you get approved

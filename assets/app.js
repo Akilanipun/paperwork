@@ -39,35 +39,78 @@
 
   function initAds() {
     var adsterra = SITE.adsterra || {};
+    var cfg = adsterra.banner || {};
     var adsense = SITE.adsense || {};
-    var popunder = adsterra.popunder || "";
-    var socialBar = adsterra.socialBar || "";
+    var hasBanner = !!(cfg.key && cfg.src);
     var hasDisplay = !!adsense.client;
-    var hasAny = !!(popunder || socialBar || hasDisplay);
 
-    /* Empty display slots would leave gaps, so hide them until an
-       AdSense/Ezoic client id is configured. */
-    if (!hasDisplay) document.documentElement.classList.add("no-ads");
+    /* Nothing configured: hide the empty slots so they leave no gaps. */
+    if (!hasBanner && !hasDisplay) {
+      document.documentElement.classList.add("no-ads");
+      return;
+    }
 
-    if (!hasAny) return;
+    /* The Adsterra snippet uses document.write, which would wipe this page
+       if injected directly. Running it inside a same-origin iframe keeps
+       the write contained; the banner sits inside our page. */
+    function bannerMarkup() {
+      var opts = { key: cfg.key, format: "iframe", height: cfg.height, width: cfg.width, params: {} };
+      return "<!doctype html><html><head><meta charset=\"utf-8\">" +
+        "<style>html,body{margin:0;padding:0;overflow:hidden;background:transparent}" +
+        "iframe{border:0;display:block}</style></head><body>" +
+        "<script>atOptions=" + JSON.stringify(opts) + ";<\/script>" +
+        "<script src=\"" + cfg.src + "\"><\/script>" +
+        "</body></html>";
+    }
 
-    function inject(src, target) {
-      var s = document.createElement("script");
-      s.setAttribute("data-cfasync", "false");
-      s.async = false;
-      s.src = src;
-      (target || document.body).appendChild(s);
-      return s;
+    function fit(wrap) {
+      var frame = wrap.firstChild;
+      if (!frame) return;
+      var avail = wrap.parentNode ? wrap.parentNode.clientWidth : cfg.width;
+      var s = Math.min(1, avail / cfg.width);
+      wrap.style.width = Math.round(cfg.width * s) + "px";
+      wrap.style.height = Math.round(cfg.height * s) + "px";
+      frame.style.width = cfg.width + "px";
+      frame.style.height = cfg.height + "px";
+      frame.style.transform = s < 1 ? "scale(" + s + ")" : "";
+    }
+
+    function fillBanner() {
+      var want = cfg.slots || ["top"];
+      var added = 0;
+      $$(".ad-slot").forEach(function (slot) {
+        if (want.indexOf(slot.getAttribute("data-slot")) === -1) return;
+        var wrap = document.createElement("div");
+        wrap.className = "ad-frame";
+        var frame = document.createElement("iframe");
+        frame.title = "Advertisement";
+        frame.setAttribute("scrolling", "no");
+        frame.setAttribute("frameborder", "0");
+        frame.setAttribute("data-cfasync", "false");
+        /* allow-same-origin keeps ad cookies working; the missing
+           allow-top-navigation stops a bad creative from redirecting
+           the visitor away from the tool. */
+        frame.setAttribute("sandbox", "allow-scripts allow-same-origin allow-popups allow-forms");
+        frame.srcdoc = bannerMarkup();
+        wrap.appendChild(frame);
+        slot.appendChild(wrap);
+        fit(wrap);
+        added++;
+      });
+      if (!added) document.documentElement.classList.add("no-ads");
+      window.addEventListener("resize", debounce(function () {
+        $$(".ad-frame").forEach(fit);
+      }, 150));
     }
 
     function loadDisplay() {
-      var slots = $$(".ad-slot");
       var s = document.createElement("script");
       s.async = true;
       s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" + encodeURIComponent(adsense.client);
       s.crossOrigin = "anonymous";
       document.head.appendChild(s);
-      slots.forEach(function (slot) {
+      $$(".ad-slot").forEach(function (slot) {
+        if (slot.firstChild) return;
         var unit = document.createElement("ins");
         unit.className = "adsbygoogle";
         unit.style.display = "block";
@@ -75,15 +118,13 @@
         var id = slot.getAttribute("data-slot");
         if (id) unit.setAttribute("data-ad-slot", id);
         unit.setAttribute("data-full-width-responsive", "true");
-        slot.innerHTML = "";
         slot.appendChild(unit);
         try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
       });
     }
 
     function load() {
-      if (popunder) inject(popunder, document.head);
-      if (socialBar) inject(socialBar, document.body);
+      if (hasBanner) fillBanner();
       if (hasDisplay) loadDisplay();
     }
 

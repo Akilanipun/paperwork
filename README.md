@@ -80,62 +80,66 @@ own and Google will drop the pages from the index.
 
 ---
 
-## 3. Ads (Adsterra — already live)
+## 3. Ads (Adsterra banner — already live)
 
-The site is monetised with **Adsterra**. Your zone URLs are already in
-`assets/data.js`:
+One **300×250 Adsterra banner** on tool and checklist pages, loaded only after a
+visitor presses **Accept**. The popunder and social bar were removed — they were
+invisible formats that made the site look ad-free.
+
+Your zone is configured in `assets/data.js`:
 
 ```js
 requireConsent: true,
 
 adsterra: {
-  popunder: "https://abscloud.org/1/bd4e8213ef627fcbeea668607559b75f",
-  socialBar: "https://bauval.org/14/2b3eaa7170df6583ef0df8d5a5a7e953"
+  banner: {
+    key: "885f283e75c13ade7d91462fbeb6b628",
+    src: "https://bauval.org/22/885f283e75c13ade7d91462fbeb6b628",
+    width: 300,
+    height: 250,
+    slots: ["top", "inline"]
+  }
 }
 ```
 
-Those two lines are the only place the ad code exists. `app.js` injects the
-popunder into `<head>` and the social bar at the end of `<body>` on every page,
-so you never touch the 11 HTML files.
+- `top` is the banner above the form; `inline` is the one near the bottom.
+- Remove one from `slots` to show a single banner per page.
+- The snippet is **not** pasted into the HTML. `app.js` builds it and runs it
+  inside an isolated iframe, so Adsterra's `document.write` cannot wipe the page.
 
 ### The consent gate
 
-Adsterra's tags are **not** pasted raw into the HTML. They load only after a
-visitor presses **Accept** on the cookie banner:
-
-- Accept → both scripts are requested, choice saved in `localStorage`
-- Decline → no ad script requested, no ad cookie set, tools still work
-- Returning visitors who accepted get ads immediately, no banner
+- Accept → banner script loads, choice saved in `localStorage`
+- Decline → no ad request, no ad cookie, tools still work
+- Returning visitors who accepted get the banner immediately, no prompt
 - To ask everyone again, clear the site's data in the browser
 
-That is what UK GDPR / PECR ask for. It also means a first-time visitor sees no
-popunder at all, which protects the "free legal documents" first impression.
+That is what UK GDPR / PECR ask for.
 
-**To switch ads off completely**, set the value to `""`:
+**To switch ads off completely**, set both to empty:
 
 ```js
-adsterra: { popunder: "", socialBar: "" }
+banner: { key: "", src: "", width: 300, height: 250, slots: ["top"] }
 ```
 
 **To load ads without asking** (not recommended for UK/EU traffic), set
-`requireConsent: false`. The banner disappears and scripts fire on page load.
+`requireConsent: false`. The banner disappears and the ad loads on page load.
 
 ### Second network (optional, empty)
 
 `adsense` stays in `assets/data.js` with an empty `client`. While it is empty,
-the `.ad-slot` boxes stay hidden. If AdSense or Ezoic ever approves the site,
-paste your id there and the display slots fill in. `ads.txt` is AdSense-only and
-is unused by Adsterra — leaving it as a comment does no harm.
+nothing Google-related loads. If AdSense or Ezoic ever approves the site, paste
+your id there and the same slots are reused. `ads.txt` is AdSense-only and is
+unused by Adsterra — leaving it as a comment does no harm.
 
 ### Rules of thumb
 
 - **Never** paste the Adsterra `<script>` tags into the HTML as well — you will
-  double-load and get invalid traffic flagged.
-- One popunder per page is the maximum Adsterra allows. Do not add a second.
-- Run **either** Adsterra popunder **or** AdSense, not both popunder networks on
-  the same page.
-- Popunders pay better but cost trust. If bounce rate or time-on-page suffers,
-  keep the social bar and switch the popunder off first.
+  double-load the same zone and get invalid traffic flagged.
+- Keep one banner per slot. Do not add a second network into the same box.
+- Banners pay far less per impression than a popunder, but they are visible and
+  do not cost trust. If revenue is too low, add a second zone rather than
+  switching back to a popunder on the same page.
 
 ---
 
@@ -230,5 +234,6 @@ services — add those only where they genuinely help the reader.
 - Keep the privacy policy accurate if you change ad providers or add analytics.
 - If you add a contact form or newsletter, you become a data controller for that
   data and the privacy policy must say so.
-- Adsterra needs no `ads.txt` entry. Do not run a second popunder network, and
-  do not add push-notification ads — both attract invalid-traffic flags.
+- Adsterra needs no `ads.txt` entry. Do not add popunder or push-notification
+  networks alongside the banner — mixing formats on one page attracts
+  invalid-traffic flags.
