@@ -105,7 +105,11 @@ as `v.lineItems` — an array of `{ desc, qty, price }`.
    - `<form data-doc="nda">` → `<form data-doc="rent-increase-letter">`
    - the prose below the tool — replace it with 300–500 genuinely useful words
 3. Add a card linking to it in `index.html` and, optionally, in the footer.
-4. Add the URL to `sitemap.xml`.
+   Link **without** the `.html` extension — write `tools/rent-increase-letter`,
+   because that is the URL the host serves. A `.html` link still works, but the
+   host answers it with a redirect.
+4. Add the URL to `sitemap.xml`, also without `.html`:
+   `https://paperwork.sltechempire.store/tools/rent-increase-letter`.
 
 The preview, download, print, copy and save features work automatically because
 `assets/app.js` reads `data-doc` and looks the document up in `DOCUMENTS`.

@@ -178,13 +178,22 @@ See `HOW-TO-ADD-A-DOCUMENT.md`.
 
 ## 5. Testing before you deploy
 
-Open `paperwork/index.html` directly in a browser — it works from `file://`
-because every path is relative. Check:
+Opening `paperwork/index.html` from `file://` only lets you see the page you
+opened — menu links use the live, extensionless URLs (`/tools/invoice`), so
+clicking around needs a local server. If you want to browse locally, run this
+in the `paperwork` folder:
+
+```
+npx serve .
+```
+
+Otherwise test on the live site after deploying. Check:
 
 - [ ] Each generator fills in, previews and downloads a `.doc`
 - [ ] "Print / PDF" shows only the document, not the form or nav
 - [ ] Checklist ticks survive a page reload
 - [ ] Mobile layout: the form stacks above the preview, nothing overflows
+- [ ] The 300×250 banner appears after you accept the cookie banner
 - [ ] No console errors (F12 → Console)
 
 To test over HTTP instead (recommended, matches production):
