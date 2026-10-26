@@ -4,20 +4,38 @@
    This is the only file you need to edit to change wording, add clauses,
    or add a new generator. See HOW-TO-ADD-A-DOCUMENT.md for a template.
 
-   After going live, replace YOUR-DOMAIN.com everywhere (including the HTML
-   files and sitemap.xml) with your real domain.
+   Site address: https://paperwork.sltechempire.store
+   If you move the site to a new domain, search and replace
+   paperwork.sltechempire.store across all the HTML files and sitemap.xml.
    ========================================================================== */
 
 window.SITE = {
   name: "Paperwork",
-  domain: "https://YOUR-DOMAIN.com",
-  email: "hello@YOUR-DOMAIN.com",
+  domain: "https://paperwork.sltechempire.store",
+  email: "hello@sltechempire.store",
   tagline: "Free document generators and checklists for freelancers and small businesses",
   updated: "26 October 2026",
 
-  /* Leave client empty until AdSense approves you. Then paste your
-     ca-pub-XXXXXXXXXXXXXXXX number here and ads will start loading
-     (only after the visitor accepts the cookie banner). */
+  /* --------------------------------------------------------------------
+     ADVERTISING
+     --------------------------------------------------------------------
+     Nothing loads until the visitor presses "Accept" on the cookie
+     banner. To switch an ad off, set its value to "" (empty string).
+
+     popunder    - Adsterra popunder. Loads in <head>.
+     socialBar   - Adsterra social bar. Loads at the end of <body>.
+
+     Keep the exact URLs. They contain your account and zone ids.
+     -------------------------------------------------------------------- */
+  requireConsent: true,
+
+  adsterra: {
+    popunder: "https://abscloud.org/1/bd4e8213ef627fcbeea668607559b75f",
+    socialBar: "https://bauval.org/14/2b3eaa7170df6583ef0df8d5a5a7e953"
+  },
+
+  /* Optional second network. Leave client empty unless you get approved
+     by AdSense or Ezoic. Display slots stay hidden while it is empty. */
   adsense: {
     client: "",                 // e.g. "ca-pub-1234567890123456"
     slots: { top: "", inline: "" }  // optional ad unit ids

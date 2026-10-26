@@ -38,23 +38,40 @@
   /* --------------------------- ad loading ------------------------------- */
 
   function initAds() {
-    var cfg = (SITE.adsense || {});
-    var slots = $$(".ad-slot");
-    if (!cfg.client) {
-      document.documentElement.classList.add("no-ads");
-      return;
+    var adsterra = SITE.adsterra || {};
+    var adsense = SITE.adsense || {};
+    var popunder = adsterra.popunder || "";
+    var socialBar = adsterra.socialBar || "";
+    var hasDisplay = !!adsense.client;
+    var hasAny = !!(popunder || socialBar || hasDisplay);
+
+    /* Empty display slots would leave gaps, so hide them until an
+       AdSense/Ezoic client id is configured. */
+    if (!hasDisplay) document.documentElement.classList.add("no-ads");
+
+    if (!hasAny) return;
+
+    function inject(src, target) {
+      var s = document.createElement("script");
+      s.setAttribute("data-cfasync", "false");
+      s.async = false;
+      s.src = src;
+      (target || document.body).appendChild(s);
+      return s;
     }
-    function load() {
+
+    function loadDisplay() {
+      var slots = $$(".ad-slot");
       var s = document.createElement("script");
       s.async = true;
-      s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" + encodeURIComponent(cfg.client);
+      s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" + encodeURIComponent(adsense.client);
       s.crossOrigin = "anonymous";
       document.head.appendChild(s);
       slots.forEach(function (slot) {
         var unit = document.createElement("ins");
         unit.className = "adsbygoogle";
         unit.style.display = "block";
-        unit.setAttribute("data-ad-client", cfg.client);
+        unit.setAttribute("data-ad-client", adsense.client);
         var id = slot.getAttribute("data-slot");
         if (id) unit.setAttribute("data-ad-slot", id);
         unit.setAttribute("data-full-width-responsive", "true");
@@ -63,16 +80,31 @@
         try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
       });
     }
+
+    function load() {
+      if (popunder) inject(popunder, document.head);
+      if (socialBar) inject(socialBar, document.body);
+      if (hasDisplay) loadDisplay();
+    }
+
+    /* If you ever need ads to load without consent, set
+       requireConsent: false in assets/data.js. Note that UK/EU visitors
+       must be asked before tracking scripts run. */
+    if (SITE.requireConsent === false) { load(); return; }
     if (store("consent") === "granted") { load(); return; }
 
     var banner = $("#consent");
     if (!banner) return;
     banner.hidden = false;
+
     $("#consent-accept", banner).addEventListener("click", function () {
-      store("consent", "granted"); banner.hidden = true; load();
+      store("consent", "granted");
+      banner.hidden = true;
+      load();
     });
     $("#consent-decline", banner).addEventListener("click", function () {
-      store("consent", "declined"); banner.hidden = true;
+      store("consent", "declined");
+      banner.hidden = true;
     });
   }
 
